@@ -1,47 +1,59 @@
-<h1> Post Details: </h1>
+<h2> Post Details: </h2>
 
-<div class=post-content>
-    <b> TITLE: </b>
-    <%= post.title %><br/><br/>
+<h1>
+<%= post.title %>
+</h1>
 
-    <b> CONTENT: </b>
-    <%= post.content %><br/><br/>
-
-    <b> CATEGORIES: </b>
+<p>
+<%= post.content %>
+</p>
+    
+<p> <b> CATEGORIES: </b>
     <% post.categories.each do |category| %>
         <li><%= category.name %></li>
-    <% end %><br/><br/>
-
-    <b> COMMENTS: </b>
-    <% post.comments.each do |comment| %>
-        <%= comment.content %><br/>
-    <% end %><br/><br/>
-
-    <b> Unique Users that have Commented on this Post: </b><br/>
-    <% post.users.each do |user| %>
-        Username: <%= user.username %><br>
-        Email: <%= user.email %><br>
     <% end %>
-</div>
+</p>
+
+<b> COMMENTS: </b>
+<ul>
+<% @post.comments.each do |comment| %>
+    <li>
+        <%= comment.user.username %> says: <%= comment.content %>
+    </li>
+    <% end %>
+</ul>
+
+<b> COMMENTATORS: </b><br/>
+<ul> 
+<% post.users.uniq.each do |user| %>
+    <li> 
+        <%= link_to user.username, user_path(user) %><br>
+    </li>
+<% end %>
+</ul>
 
 
 
-<h3> Add a Comment: </h3>
+<h3> ADD A COMMENT: </h3>
 
-<%= form_for post do |f| %>
-  <%= f.label "Content" %>
-  <%= f.text_area :content %><br/><br/>
-
-  <%= f.label "Username" %>
-  <%= f.collection_select :user_ids, User.all, :id, :username, include_blank: true %><br/>
-
-  <%= f.label "User not listed? Create New User:" %>
-  <%= f.fields_for :users, post.users.build do |users_fields| %>
-    <p><%= users_fields.text_field :username %></p>
-  <% end %>
-
+<%= form_for @post.comments.build do |f| %>
   <%= f.hidden_field :post_id, value: @post.id %> 
 
+  <p>
+  <%= f.label "Select User" %>
+  <%= f.collection_select :user_id, User.all, :id, :username, include_blank: true %>
+  </p>
+
+  <%= f.fields_for :user, User.new do |user_fields| %>
+    <%= user_fields.label :username, "User not listed? Create New User:" %>
+    <%= user_fields.text_field :username %>
+  <% end %>
+
+  <p> 
+    <%= f.label :content, "New Comment" %>
+    <%= f.text_area :content %>
+  </p>
+  <br/>
   <%= f.submit %>
 <% end %>
 
